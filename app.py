@@ -80,8 +80,53 @@ st.markdown("""
     }
     
     /* Force light text on all elements */
-    .stMarkdown, .stText, p, h1, h2, h3, h4, h5, h6, label, span {
+    .stMarkdown, .stText, p, h2, h3, h4, h5, h6, label, span {
         color: inherit !important;
+    }
+    
+    /* Ensure header stays brown - override any dark mode - highest priority */
+    h1, .stMarkdown h1, [class*="stMarkdown"] h1, 
+    .main h1, [data-testid="stAppViewContainer"] h1,
+    .block-container h1 {
+        color: #5D4037 !important;
+    }
+    
+    /* Ensure sidebar toggle button is always visible - deployment-proof */
+    [data-testid="collapsedControl"],
+    button[data-testid="collapsedControl"],
+    [data-testid="collapsedControl"] button,
+    .stApp [data-testid="collapsedControl"],
+    [class*="collapsedControl"],
+    button[aria-label*="sidebar"],
+    button[title*="sidebar"] {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        z-index: 99999 !important;
+        position: fixed !important;
+        background-color: #5D4037 !important;
+        color: #FFF8E1 !important;
+        border: 1px solid #8D6E63 !important;
+        width: auto !important;
+        height: auto !important;
+        min-width: 30px !important;
+        min-height: 30px !important;
+    }
+    
+    /* Ensure toggle button is visible even when sidebar is collapsed */
+    [data-testid="stSidebar"][aria-expanded="false"] ~ [data-testid="collapsedControl"],
+    [data-testid="stSidebar"][aria-expanded="false"] + [data-testid="collapsedControl"] {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    /* Ensure decision colors are preserved */
+    .decision-allow {
+        color: #388E3C !important;
+    }
+    .decision-decline {
+        color: #D32F2F !important;
     }
     
     /* Main container styling */
@@ -112,6 +157,22 @@ st.markdown("""
             color: #262730 !important;
             color-scheme: light !important;
         }
+        h1 {
+            color: #5D4037 !important;
+        }
+    }
+    
+    /* Force header color to brown - highest priority - deployment-proof */
+    h1, .stMarkdown h1, [class*="stMarkdown"] h1,
+    .main h1, [data-testid="stAppViewContainer"] h1,
+    .block-container h1, .stApp h1,
+    h1[style*="color"], h1 * {
+        color: #5D4037 !important;
+    }
+    
+    /* Override any inline styles that might be added by Streamlit */
+    h1[style] {
+        color: #5D4037 !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -171,9 +232,214 @@ st.markdown("""
                     color: #262730 !important;
                     color-scheme: light !important;
                 }
+                h1 {
+                    color: #5D4037 !important;
+                }
+            }
+            
+            /* Ensure sidebar toggle is always visible */
+            [data-testid="collapsedControl"] {
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                z-index: 9999 !important;
+            }
+            
+            button[data-testid="collapsedControl"],
+            [data-testid="collapsedControl"] button {
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                background-color: #5D4037 !important;
+                color: #FFF8E1 !important;
+                border: 1px solid #8D6E63 !important;
+                z-index: 9999 !important;
+            }
+            
+            /* Force header color - comprehensive override */
+            h1, .stMarkdown h1, [class*="stMarkdown"] h1,
+            .main h1, [data-testid="stAppViewContainer"] h1,
+            .block-container h1 {
+                color: #5D4037 !important;
             }
         `;
         document.head.appendChild(style);
+        
+        // Force header color via JavaScript - deployment-proof
+        const forceHeaderColor = () => {
+            // Target by ID first (most specific)
+            const headerById = document.getElementById('fraud-detection-header');
+            if (headerById) {
+                headerById.style.color = '#5D4037';
+                headerById.style.setProperty('color', '#5D4037', 'important');
+            }
+            
+            // Also target all h1 elements
+            const headers = document.querySelectorAll('h1');
+            headers.forEach(h1 => {
+                const text = h1.textContent || h1.innerText || '';
+                if (text.includes('FRAUD DETECTION SYSTEM') || text.includes('FRAUD')) {
+                    h1.style.color = '#5D4037';
+                    h1.style.setProperty('color', '#5D4037', 'important');
+                    // Also set on computed style
+                    const computedStyle = window.getComputedStyle(h1);
+                    if (computedStyle.color !== 'rgb(93, 64, 55)') {
+                        h1.style.color = '#5D4037';
+                        h1.style.setProperty('color', '#5D4037', 'important');
+                    }
+                }
+            });
+            
+            // Also force via CSS injection
+            const styleId = 'force-header-brown';
+            let styleEl = document.getElementById(styleId);
+            if (!styleEl) {
+                styleEl = document.createElement('style');
+                styleEl.id = styleId;
+                document.head.appendChild(styleEl);
+            }
+            styleEl.textContent = `
+                #fraud-detection-header,
+                h1, h1 *, [class*="stMarkdown"] h1, .main h1 {
+                    color: #5D4037 !important;
+                }
+            `;
+        };
+        
+        // Ensure sidebar toggle button is always visible - deployment-proof
+        const ensureSidebarToggle = () => {
+            // Try multiple selectors
+            const selectors = [
+                '[data-testid="collapsedControl"]',
+                'button[data-testid="collapsedControl"]',
+                '[data-testid="collapsedControl"] button',
+                'button[aria-label*="sidebar"]',
+                'button[title*="sidebar"]',
+                '.stApp button[data-testid="collapsedControl"]'
+            ];
+            
+            selectors.forEach(selector => {
+                const toggleBtns = document.querySelectorAll(selector);
+                toggleBtns.forEach(toggleBtn => {
+                    if (toggleBtn) {
+                        toggleBtn.style.display = 'block';
+                        toggleBtn.style.visibility = 'visible';
+                        toggleBtn.style.opacity = '1';
+                        toggleBtn.style.zIndex = '99999';
+                        toggleBtn.style.position = 'fixed';
+                        toggleBtn.style.backgroundColor = '#5D4037';
+                        toggleBtn.style.color = '#FFF8E1';
+                        toggleBtn.style.border = '1px solid #8D6E63';
+                        toggleBtn.style.minWidth = '30px';
+                        toggleBtn.style.minHeight = '30px';
+                    }
+                });
+            });
+            
+            // Also create toggle button if it doesn't exist
+            if (!document.querySelector('[data-testid="collapsedControl"]')) {
+                const sidebar = document.querySelector('[data-testid="stSidebar"]');
+                if (sidebar) {
+                    const toggleBtn = document.createElement('button');
+                    toggleBtn.setAttribute('data-testid', 'collapsedControl');
+                    toggleBtn.style.cssText = `
+                        display: block !important;
+                        visibility: visible !important;
+                        opacity: 1 !important;
+                        z-index: 99999 !important;
+                        position: fixed !important;
+                        left: 0 !important;
+                        top: 50% !important;
+                        transform: translateY(-50%) !important;
+                        background-color: #5D4037 !important;
+                        color: #FFF8E1 !important;
+                        border: 1px solid #8D6E63 !important;
+                        width: 30px !important;
+                        height: 60px !important;
+                        cursor: pointer !important;
+                        border-radius: 0 5px 5px 0 !important;
+                    `;
+                    toggleBtn.innerHTML = '▶';
+                    toggleBtn.onclick = () => {
+                        sidebar.setAttribute('aria-expanded', 'true');
+                        sidebar.style.display = 'block';
+                    };
+                    document.body.appendChild(toggleBtn);
+                }
+            }
+        };
+        
+        // Force decision colors - deployment-proof
+        const forceDecisionColors = () => {
+            // Find decision elements
+            const decisionValue = document.getElementById('decision-value');
+            const decisionLabel = document.getElementById('decision-label');
+            
+            if (decisionValue) {
+                const text = decisionValue.textContent || decisionValue.innerText || '';
+                if (text.includes('DECLINE')) {
+                    decisionValue.style.color = '#D32F2F';
+                    decisionValue.style.setProperty('color', '#D32F2F', 'important');
+                    decisionValue.classList.add('decision-decline');
+                } else if (text.includes('ALLOW')) {
+                    decisionValue.style.color = '#388E3C';
+                    decisionValue.style.setProperty('color', '#388E3C', 'important');
+                    decisionValue.classList.add('decision-allow');
+                }
+            }
+            
+            if (decisionLabel) {
+                const valueText = decisionValue?.textContent || '';
+                if (valueText.includes('DECLINE')) {
+                    decisionLabel.style.color = '#D32F2F';
+                    decisionLabel.style.setProperty('color', '#D32F2F', 'important');
+                } else if (valueText.includes('ALLOW')) {
+                    decisionLabel.style.color = '#388E3C';
+                    decisionLabel.style.setProperty('color', '#388E3C', 'important');
+                }
+            }
+            
+            // Also check all h2 elements for DECLINE/ALLOW
+            const allH2 = document.querySelectorAll('h2');
+            allH2.forEach(h2 => {
+                const text = h2.textContent || h2.innerText || '';
+                if (text.includes('DECLINE')) {
+                    h2.style.color = '#D32F2F';
+                    h2.style.setProperty('color', '#D32F2F', 'important');
+                    h2.classList.add('decision-decline');
+                } else if (text.includes('ALLOW')) {
+                    h2.style.color = '#388E3C';
+                    h2.style.setProperty('color', '#388E3C', 'important');
+                    h2.classList.add('decision-allow');
+                }
+            });
+        };
+        
+        // Run on load and continuously check - more frequent for deployment
+        forceHeaderColor();
+        ensureSidebarToggle();
+        forceDecisionColors();
+        
+        // Use MutationObserver to catch dynamic changes
+        const observer = new MutationObserver(() => {
+            forceHeaderColor();
+            ensureSidebarToggle();
+            forceDecisionColors();
+        });
+        
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['style', 'class']
+        });
+        
+        // Also run on interval
+        setInterval(() => {
+            forceHeaderColor();
+            ensureSidebarToggle();
+            forceDecisionColors();
+        }, 300);
     })();
     </script>
 """, unsafe_allow_html=True)
@@ -478,16 +744,27 @@ st.markdown("""
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     
-    /* Prediction container - big box with distinct colors */
+    /* Prediction container - further reduced size */
     .prediction-container {
         background: linear-gradient(135deg, #E8D5B7 0%, #D7CCC8 100%);
-        padding: 2.5rem;
-        border-radius: 20px;
-        border: 4px solid #8D6E63;
-        margin: 2rem 0;
-        box-shadow: 0 8px 16px rgba(0,0,0,0.25);
-        min-height: 400px;
+        padding: 1rem;
+        border-radius: 10px;
+        border: 2px solid #8D6E63;
+        margin: 0.5rem 0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        min-height: 180px;
         width: 100%;
+    }
+    
+    /* Ensure decision colors are preserved - deployment-proof */
+    .decision-decline, .decision-decline *,
+    h2:contains("DECLINE"), h3:contains("DECLINE") {
+        color: #D32F2F !important;
+    }
+    
+    .decision-allow, .decision-allow *,
+    h2:contains("ALLOW"), h3:contains("ALLOW") {
+        color: #388E3C !important;
     }
     
     /* Prediction metrics styling */
@@ -500,12 +777,20 @@ st.markdown("""
         box-shadow: 0 4px 8px rgba(0,0,0,0.15);
     }
     
-    /* Circular gauge chart styling */
+    /* Circular gauge chart styling - further reduced size */
     .gauge-container {
         position: relative;
-        width: 200px;
-        height: 200px;
+        width: 140px;
+        height: 140px;
         margin: 0 auto;
+    }
+    
+    .gauge-text {
+        font-size: 1.3rem !important;
+    }
+    
+    .gauge-label {
+        font-size: 0.7rem !important;
     }
     
     .gauge-svg {
@@ -765,27 +1050,36 @@ def main():
     # Header without dark brown background box - compact and at absolute top
     # Main title - 3D plastic raised effect with all caps
     st.markdown('''
-    <h1 style="
-        color: #5D4037; 
+    <h1 id="fraud-detection-header" style="
+        color: #5D4037 !important; 
         text-align: center; 
-        font-size: 3.5rem; 
+        font-size: 2.8rem; 
         font-weight: 900; 
         font-family: "Californian FB", "Californian", "Times New Roman", serif;
         margin-top: 0 !important; 
-        margin-bottom: 0.1rem; 
+        margin-bottom: 0.05rem; 
         padding-top: 0 !important; 
+        line-height: 1.1;
         text-transform: uppercase;
-        letter-spacing: 2px;
+        letter-spacing: 1.5px;
         text-shadow: 
             0 1px 0 #8D6E63,
             0 2px 0 #8D6E63,
             0 3px 1px rgba(0,0,0,.2),
             0 4px 2px rgba(0,0,0,.15);
     ">🔒 FRAUD DETECTION SYSTEM</h1>
+    <style>
+        #fraud-detection-header {
+            color: #5D4037 !important;
+        }
+        #fraud-detection-header * {
+            color: #5D4037 !important;
+        }
+    </style>
     ''', unsafe_allow_html=True)
     
-    # Subtitle - brown text, increased font size
-    st.markdown('<p style="color: #6D4C41; text-align: center; font-size: 1.8rem; margin-top: 0.1rem; margin-bottom: 0.5rem; font-style: italic; padding: 0 1rem;">A machine learning-driven fraud prevention in cross-border financial services.</p>', unsafe_allow_html=True)
+    # Subtitle - brown text, reduced font size and margins
+    st.markdown('<p style="color: #6D4C41; text-align: center; font-size: 1.4rem; margin-top: 0.05rem; margin-bottom: 0.3rem; font-style: italic; padding: 0 1rem; line-height: 1.2;">A machine learning-driven fraud prevention in cross-border financial services.</p>', unsafe_allow_html=True)
     
     # Feature highlights - 4 columns with smaller cards, reduced spacing
     col1, col2, col3, col4 = st.columns(4)
@@ -798,8 +1092,8 @@ def main():
     with col4:
         st.markdown('<div class="feature-card">⚠️ Risk Assessment</div>', unsafe_allow_html=True)
     
-    # Separator line after header with reduced margin
-    st.markdown('<hr class="header-separator" style="margin: 0.2rem 0;">', unsafe_allow_html=True)
+    # Separator line after header with minimal margin
+    st.markdown('<hr class="header-separator" style="margin: 0.1rem 0;">', unsafe_allow_html=True)
     
     # Load model and resources
     model = load_model()
@@ -942,44 +1236,59 @@ def main():
             else:
                 gauge_color = "#388E3C"  # Green for low risk
             
-            # Calculate circumference and stroke-dasharray for circular gauge
-            radius = 85
+            # Calculate circumference and stroke-dasharray for circular gauge (further reduced size)
+            radius = 60
             circumference = 2 * 3.14159 * radius
             stroke_dasharray = circumference
             stroke_dashoffset = circumference - (fraud_prob * circumference)
             
             st.markdown(f'''
             <div class="prediction-container">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
-                    <div style="text-align: center; padding: 1rem;">
-                        <h3 style="color: #5D4037; margin: 0 0 1rem 0; font-size: 1rem;">Fraud Probability</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 0.8rem;">
+                    <div style="text-align: center; padding: 0.5rem;">
+                        <h3 style="color: #5D4037; margin: 0 0 0.5rem 0; font-size: 0.85rem;">Fraud Probability</h3>
                         <div class="gauge-container">
-                            <svg class="gauge-svg" width="200" height="200">
-                                <circle class="gauge-background" cx="100" cy="100" r="{radius}"></circle>
-                                <circle class="gauge-fill" cx="100" cy="100" r="{radius}" 
+                            <svg class="gauge-svg" width="140" height="140">
+                                <circle class="gauge-background" cx="70" cy="70" r="60"></circle>
+                                <circle class="gauge-fill" cx="70" cy="70" r="60" 
                                         stroke="{gauge_color}" 
-                                        stroke-dasharray="{stroke_dasharray}" 
-                                        stroke-dashoffset="{stroke_dashoffset}"></circle>
+                                        stroke-dasharray="{circumference * 0.857}" 
+                                        stroke-dashoffset="{stroke_dashoffset * 0.857}"></circle>
                             </svg>
-                            <div class="gauge-text">{fraud_prob:.2%}</div>
-                            <div class="gauge-label">Risk Level</div>
+                            <div class="gauge-text" style="font-size: 1.3rem;">{fraud_prob:.2%}</div>
+                            <div class="gauge-label" style="font-size: 0.7rem;">Risk Level</div>
                         </div>
                     </div>
-                    <div style="text-align: center; padding: 1rem;">
-                        <h3 style="color: #5D4037; margin: 0 0 0.5rem 0; font-size: 1rem;">Prediction</h3>
-                        <h2 style="color: #3E2723; margin: 0; font-size: 2rem; font-weight: bold;">{prediction_text}</h2>
+                    <div style="text-align: center; padding: 0.5rem;">
+                        <h3 style="color: #5D4037; margin: 0 0 0.3rem 0; font-size: 0.85rem;">Prediction</h3>
+                        <h2 style="color: #3E2723; margin: 0; font-size: 1.4rem; font-weight: bold;">{prediction_text}</h2>
                     </div>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-                    <div style="text-align: center; padding: 1rem;">
-                        <h3 style="color: #5D4037; margin: 0 0 0.5rem 0; font-size: 1rem;">Risk Level</h3>
-                        <h2 style="color: #3E2723; margin: 0; font-size: 2rem; font-weight: bold;">{risk_level}</h2>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem;">
+                    <div style="text-align: center; padding: 0.5rem;">
+                        <h3 style="color: #5D4037; margin: 0 0 0.3rem 0; font-size: 0.85rem;">Risk Level</h3>
+                        <h2 style="color: #3E2723; margin: 0; font-size: 1.4rem; font-weight: bold;">{risk_level}</h2>
                     </div>
-                    <div style="text-align: center; padding: 1rem;">
-                        <h3 style="color: {decision_color}; margin: 0 0 0.5rem 0; font-size: 1rem;">Decision</h3>
-                        <h2 style="color: {decision_color}; margin: 0; font-size: 2rem; font-weight: bold;">{decision}</h2>
+                    <div style="text-align: center; padding: 0.5rem;">
+                        <h3 id="decision-label" class="decision-{decision.lower()}" style="color: {decision_color} !important; margin: 0 0 0.3rem 0; font-size: 0.85rem; font-weight: bold;">Decision</h3>
+                        <h2 id="decision-value" class="decision-{decision.lower()}" style="color: {decision_color} !important; margin: 0; font-size: 1.4rem; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.1);">{decision}</h2>
                     </div>
                 </div>
+                <style>
+                    #decision-value, #decision-label {{
+                        color: {decision_color} !important;
+                    }}
+                    .decision-decline, .decision-decline * {{
+                        color: #D32F2F !important;
+                    }}
+                    .decision-allow, .decision-allow * {{
+                        color: #388E3C !important;
+                    }}
+                    .gauge-container {{
+                        width: 140px;
+                        height: 140px;
+                    }}
+                </style>
             </div>
             ''', unsafe_allow_html=True)
             
