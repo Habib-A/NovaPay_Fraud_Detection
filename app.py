@@ -21,25 +21,70 @@ st.set_page_config(
 )
 
 # Remove default padding from top and move header to absolute top
-# Force light mode and disable dark mode
+# Force light mode and disable dark mode - comprehensive override
 st.markdown("""
     <style>
-    /* Force light mode - disable dark mode */
-    .stApp {
-        color-scheme: light;
-    }
-    [data-testid="stAppViewContainer"] {
-        color-scheme: light;
-    }
-    /* Hide theme settings */
-    [data-testid="stHeader"] [data-testid="stDecoration"] {
-        display: none;
-    }
-    /* Force light background */
-    .stApp {
-        background: linear-gradient(135deg, #F5E6D3 0%, #E8D5B7 100%) !important;
+    /* Force light mode - comprehensive override */
+    :root {
+        --primary-color: #ff4b4b;
+        --background-color: #ffffff;
+        --secondary-background-color: #f0f2f6;
+        --text-color: #262730;
+        --font: "Source Sans Pro", sans-serif;
     }
     
+    /* Force light mode on all elements */
+    html, body, .stApp, [data-testid="stAppViewContainer"] {
+        color-scheme: light !important;
+        background-color: #F5E6D3 !important;
+        color: #262730 !important;
+    }
+    
+    /* Override Streamlit's dark mode variables */
+    .stApp {
+        --background-color: #F5E6D3 !important;
+        --secondary-background-color: #E8D5B7 !important;
+        --text-color: #262730 !important;
+        --text-color-faded: #808495 !important;
+        background: linear-gradient(135deg, #F5E6D3 0%, #E8D5B7 100%) !important;
+        color-scheme: light !important;
+    }
+    
+    /* Force light mode on main container */
+    [data-testid="stAppViewContainer"] {
+        background-color: #F5E6D3 !important;
+        color-scheme: light !important;
+    }
+    
+    /* Force light mode on sidebar */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(135deg, #5D4037 0%, #3E2723 100%) !important;
+        color-scheme: light !important;
+    }
+    
+    /* Hide theme settings menu completely */
+    [data-testid="stHeader"] [data-testid="stDecoration"],
+    [data-testid="stHeader"] button[title="Settings"],
+    [data-testid="stHeader"] button[aria-label="Settings"],
+    button[data-testid="baseButton-header"][aria-label="Settings"],
+    .stDeployButton,
+    [data-testid="stHeader"] > div:last-child button {
+        display: none !important;
+        visibility: hidden !important;
+    }
+    
+    /* Override any dark mode classes */
+    .dark, [data-theme="dark"], [class*="dark"] {
+        background-color: #F5E6D3 !important;
+        color: #262730 !important;
+    }
+    
+    /* Force light text on all elements */
+    .stMarkdown, .stText, p, h1, h2, h3, h4, h5, h6, label, span {
+        color: inherit !important;
+    }
+    
+    /* Main container styling */
     .stApp > header {
         visibility: hidden;
         height: 0;
@@ -53,12 +98,84 @@ st.markdown("""
     .main .block-container {
         padding-top: 0.1rem !important;
         padding-bottom: 2rem;
+        background-color: transparent !important;
     }
     #MainMenu {
         visibility: hidden;
         height: 0;
     }
+    
+    /* Override Streamlit's default dark mode detection */
+    @media (prefers-color-scheme: dark) {
+        .stApp, [data-testid="stAppViewContainer"] {
+            background-color: #F5E6D3 !important;
+            color: #262730 !important;
+            color-scheme: light !important;
+        }
+    }
     </style>
+""", unsafe_allow_html=True)
+
+# Inject JavaScript to prevent theme switching and force light mode
+st.markdown("""
+    <script>
+    // Force light mode on page load and prevent theme switching
+    (function() {
+        // Override Streamlit's theme detection
+        if (window.parent !== window) {
+            try {
+                window.parent.postMessage({
+                    type: 'streamlit:setTheme',
+                    theme: {
+                        base: 'light',
+                        primaryColor: '#ff4b4b',
+                        backgroundColor: '#F5E6D3',
+                        secondaryBackgroundColor: '#E8D5B7',
+                        textColor: '#262730',
+                        font: 'sans serif'
+                    }
+                }, '*');
+            } catch(e) {}
+        }
+        
+        // Remove theme toggle buttons
+        const removeThemeToggle = () => {
+            const buttons = document.querySelectorAll('button[aria-label*="Settings"], button[title*="Settings"], [data-testid*="Settings"]');
+            buttons.forEach(btn => {
+                if (btn.textContent.includes('Settings') || btn.getAttribute('aria-label')?.includes('Settings')) {
+                    btn.style.display = 'none';
+                    btn.remove();
+                }
+            });
+        };
+        
+        // Run on load and continuously check
+        removeThemeToggle();
+        setInterval(removeThemeToggle, 1000);
+        
+        // Force light mode CSS variables
+        document.documentElement.style.setProperty('--background-color', '#F5E6D3');
+        document.documentElement.style.setProperty('--secondary-background-color', '#E8D5B7');
+        document.documentElement.style.setProperty('--text-color', '#262730');
+        document.documentElement.style.colorScheme = 'light';
+        
+        // Override prefers-color-scheme media query
+        const style = document.createElement('style');
+        style.textContent = `
+            @media (prefers-color-scheme: dark) {
+                :root, .stApp, [data-testid="stAppViewContainer"] {
+                    --background-color: #F5E6D3 !important;
+                    --secondary-background-color: #E8D5B7 !important;
+                    --text-color: #262730 !important;
+                    background-color: #F5E6D3 !important;
+                    color: #262730 !important;
+                    color-scheme: light !important;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    })();
+    </script>
 """, unsafe_allow_html=True)
 
 # Custom CSS with brown color scheme
