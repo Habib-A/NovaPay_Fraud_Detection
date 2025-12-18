@@ -60,6 +60,45 @@ st.markdown("""
     [data-testid="stSidebar"] {
         background: linear-gradient(135deg, #5D4037 0%, #3E2723 100%) !important;
         color-scheme: light !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        transform: translateX(0) !important;
+        width: 21rem !important;
+    }
+    
+    /* Force sidebar to always be visible and never collapse */
+    [data-testid="stSidebar"][aria-expanded="false"],
+    [data-testid="stSidebar"][aria-expanded="true"] {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        transform: translateX(0) !important;
+        width: 21rem !important;
+        min-width: 21rem !important;
+        max-width: 21rem !important;
+        transition: none !important;
+        animation: none !important;
+    }
+    
+    /* Hide the collapse button completely - prevent sidebar from being hidden */
+    [data-testid="collapsedControl"],
+    button[data-testid="collapsedControl"],
+    [data-testid="collapsedControl"] button,
+    .stApp [data-testid="collapsedControl"],
+    [class*="collapsedControl"],
+    button[aria-label*="sidebar"],
+    button[title*="sidebar"],
+    button[aria-label*="Close"],
+    button[title*="Close"],
+    button[aria-label*="Collapse"],
+    button[title*="Collapse"] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        width: 0 !important;
+        height: 0 !important;
     }
     
     /* Hide theme settings menu completely */
@@ -91,34 +130,30 @@ st.markdown("""
         color: #5D4037 !important;
     }
     
-    /* Ensure sidebar toggle button is always visible - deployment-proof */
-    [data-testid="collapsedControl"],
-    button[data-testid="collapsedControl"],
-    [data-testid="collapsedControl"] button,
-    .stApp [data-testid="collapsedControl"],
-    [class*="collapsedControl"],
-    button[aria-label*="sidebar"],
-    button[title*="sidebar"] {
+    /* Prevent sidebar from being collapsed - force it to always be visible */
+    [data-testid="stSidebar"] {
         display: block !important;
         visibility: visible !important;
         opacity: 1 !important;
-        z-index: 99999 !important;
-        position: fixed !important;
-        background-color: #5D4037 !important;
-        color: #FFF8E1 !important;
-        border: 1px solid #8D6E63 !important;
-        width: auto !important;
-        height: auto !important;
-        min-width: 30px !important;
-        min-height: 30px !important;
+        transform: translateX(0) !important;
+        width: 21rem !important;
+        min-width: 21rem !important;
+        max-width: 21rem !important;
+        transition: none !important;
+        animation: none !important;
     }
     
-    /* Ensure toggle button is visible even when sidebar is collapsed */
-    [data-testid="stSidebar"][aria-expanded="false"] ~ [data-testid="collapsedControl"],
-    [data-testid="stSidebar"][aria-expanded="false"] + [data-testid="collapsedControl"] {
+    /* Ensure sidebar is always expanded */
+    [data-testid="stSidebar"][aria-expanded="false"] {
         display: block !important;
         visibility: visible !important;
         opacity: 1 !important;
+        transform: translateX(0) !important;
+        width: 21rem !important;
+        min-width: 21rem !important;
+        max-width: 21rem !important;
+        transition: none !important;
+        animation: none !important;
     }
     
     /* Ensure decision colors are preserved */
@@ -237,23 +272,47 @@ st.markdown("""
                 }
             }
             
-            /* Ensure sidebar toggle is always visible */
-            [data-testid="collapsedControl"] {
-                display: block !important;
-                visibility: visible !important;
-                opacity: 1 !important;
-                z-index: 9999 !important;
+            /* Hide collapse button and prevent sidebar from being hidden */
+            [data-testid="collapsedControl"],
+            button[data-testid="collapsedControl"],
+            [data-testid="collapsedControl"] button,
+            button[aria-label*="sidebar"],
+            button[title*="sidebar"],
+            button[aria-label*="Close"],
+            button[title*="Close"],
+            button[aria-label*="Collapse"],
+            button[title*="Collapse"] {
+                display: none !important;
+                visibility: hidden !important;
+                opacity: 0 !important;
+                pointer-events: none !important;
+                width: 0 !important;
+                height: 0 !important;
             }
             
-            button[data-testid="collapsedControl"],
-            [data-testid="collapsedControl"] button {
+            /* Force sidebar to always be visible */
+            [data-testid="stSidebar"] {
                 display: block !important;
                 visibility: visible !important;
                 opacity: 1 !important;
-                background-color: #5D4037 !important;
-                color: #FFF8E1 !important;
-                border: 1px solid #8D6E63 !important;
-                z-index: 9999 !important;
+                transform: translateX(0) !important;
+                width: 21rem !important;
+                min-width: 21rem !important;
+                max-width: 21rem !important;
+                transition: none !important;
+                animation: none !important;
+            }
+            
+            [data-testid="stSidebar"][aria-expanded="false"] {
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                transform: translateX(0) !important;
+                width: 21rem !important;
+                min-width: 21rem !important;
+                max-width: 21rem !important;
+                transition: none !important;
+                animation: none !important;
             }
             
             /* Force header color - comprehensive override */
@@ -306,67 +365,62 @@ st.markdown("""
             `;
         };
         
-        // Ensure sidebar toggle button is always visible - deployment-proof
-        const ensureSidebarToggle = () => {
-            // Try multiple selectors
+        // Force sidebar to always be visible and prevent collapse - deployment-proof
+        const ensureSidebarAlwaysVisible = () => {
+            const sidebar = document.querySelector('[data-testid="stSidebar"]');
+            if (sidebar) {
+                // Force sidebar to be visible and expanded
+                sidebar.setAttribute('aria-expanded', 'true');
+                sidebar.style.display = 'block';
+                sidebar.style.visibility = 'visible';
+                sidebar.style.opacity = '1';
+                sidebar.style.transform = 'translateX(0)';
+                sidebar.style.width = '21rem';
+                sidebar.style.minWidth = '21rem';
+                sidebar.style.maxWidth = '21rem';
+                
+                // Prevent any collapse actions
+                sidebar.addEventListener('transitionend', () => {
+                    sidebar.style.display = 'block';
+                    sidebar.style.visibility = 'visible';
+                    sidebar.style.transform = 'translateX(0)';
+                }, { once: false });
+            }
+            
+            // Hide all collapse/toggle buttons
             const selectors = [
                 '[data-testid="collapsedControl"]',
                 'button[data-testid="collapsedControl"]',
                 '[data-testid="collapsedControl"] button',
                 'button[aria-label*="sidebar"]',
                 'button[title*="sidebar"]',
+                'button[aria-label*="Close"]',
+                'button[title*="Close"]',
+                'button[aria-label*="Collapse"]',
+                'button[title*="Collapse"]',
                 '.stApp button[data-testid="collapsedControl"]'
             ];
             
             selectors.forEach(selector => {
-                const toggleBtns = document.querySelectorAll(selector);
-                toggleBtns.forEach(toggleBtn => {
-                    if (toggleBtn) {
-                        toggleBtn.style.display = 'block';
-                        toggleBtn.style.visibility = 'visible';
-                        toggleBtn.style.opacity = '1';
-                        toggleBtn.style.zIndex = '99999';
-                        toggleBtn.style.position = 'fixed';
-                        toggleBtn.style.backgroundColor = '#5D4037';
-                        toggleBtn.style.color = '#FFF8E1';
-                        toggleBtn.style.border = '1px solid #8D6E63';
-                        toggleBtn.style.minWidth = '30px';
-                        toggleBtn.style.minHeight = '30px';
+                const buttons = document.querySelectorAll(selector);
+                buttons.forEach(btn => {
+                    if (btn) {
+                        btn.style.display = 'none';
+                        btn.style.visibility = 'hidden';
+                        btn.style.opacity = '0';
+                        btn.style.pointerEvents = 'none';
+                        btn.style.width = '0';
+                        btn.style.height = '0';
+                        // Remove click handlers to prevent collapse
+                        btn.onclick = null;
+                        btn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            return false;
+                        }, true);
                     }
                 });
             });
-            
-            // Also create toggle button if it doesn't exist
-            if (!document.querySelector('[data-testid="collapsedControl"]')) {
-                const sidebar = document.querySelector('[data-testid="stSidebar"]');
-                if (sidebar) {
-                    const toggleBtn = document.createElement('button');
-                    toggleBtn.setAttribute('data-testid', 'collapsedControl');
-                    toggleBtn.style.cssText = `
-                        display: block !important;
-                        visibility: visible !important;
-                        opacity: 1 !important;
-                        z-index: 99999 !important;
-                        position: fixed !important;
-                        left: 0 !important;
-                        top: 50% !important;
-                        transform: translateY(-50%) !important;
-                        background-color: #5D4037 !important;
-                        color: #FFF8E1 !important;
-                        border: 1px solid #8D6E63 !important;
-                        width: 30px !important;
-                        height: 60px !important;
-                        cursor: pointer !important;
-                        border-radius: 0 5px 5px 0 !important;
-                    `;
-                    toggleBtn.innerHTML = '▶';
-                    toggleBtn.onclick = () => {
-                        sidebar.setAttribute('aria-expanded', 'true');
-                        sidebar.style.display = 'block';
-                    };
-                    document.body.appendChild(toggleBtn);
-                }
-            }
         };
         
         // Force decision colors - deployment-proof
@@ -417,13 +471,13 @@ st.markdown("""
         
         // Run on load and continuously check - more frequent for deployment
         forceHeaderColor();
-        ensureSidebarToggle();
+        ensureSidebarAlwaysVisible();
         forceDecisionColors();
         
         // Use MutationObserver to catch dynamic changes
         const observer = new MutationObserver(() => {
             forceHeaderColor();
-            ensureSidebarToggle();
+            ensureSidebarAlwaysVisible();
             forceDecisionColors();
         });
         
@@ -431,15 +485,33 @@ st.markdown("""
             childList: true,
             subtree: true,
             attributes: true,
-            attributeFilter: ['style', 'class']
+            attributeFilter: ['style', 'class', 'aria-expanded']
         });
         
-        // Also run on interval
+        // Also run on interval to ensure sidebar stays visible
         setInterval(() => {
             forceHeaderColor();
-            ensureSidebarToggle();
+            ensureSidebarAlwaysVisible();
             forceDecisionColors();
-        }, 300);
+        }, 200);
+        
+        // Prevent sidebar collapse on window resize or any other event
+        window.addEventListener('resize', ensureSidebarAlwaysVisible);
+        document.addEventListener('click', (e) => {
+            // If someone tries to click a collapse button, prevent it
+            const target = e.target;
+            if (target && (
+                target.getAttribute('data-testid') === 'collapsedControl' ||
+                target.closest('[data-testid="collapsedControl"]') ||
+                target.getAttribute('aria-label')?.includes('sidebar') ||
+                target.getAttribute('title')?.includes('sidebar')
+            )) {
+                e.preventDefault();
+                e.stopPropagation();
+                ensureSidebarAlwaysVisible();
+                return false;
+            }
+        }, true);
     })();
     </script>
 """, unsafe_allow_html=True)
@@ -452,13 +524,35 @@ st.markdown("""
         background: linear-gradient(135deg, #F5E6D3 0%, #E8D5B7 100%);
     }
     
-    /* Sidebar background - dark brown */
+    /* Sidebar background - dark brown - always visible */
     [data-testid="stSidebar"] {
-        background: linear-gradient(135deg, #5D4037 0%, #3E2723 100%);
+        background: linear-gradient(135deg, #5D4037 0%, #3E2723 100%) !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        transform: translateX(0) !important;
+        width: 21rem !important;
+        min-width: 21rem !important;
+        max-width: 21rem !important;
+        transition: none !important;
+        animation: none !important;
     }
     
     [data-testid="stSidebar"] > div:first-child {
         background: linear-gradient(135deg, #5D4037 0%, #3E2723 100%);
+    }
+    
+    /* Prevent sidebar from collapsing */
+    [data-testid="stSidebar"][aria-expanded="false"] {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        transform: translateX(0) !important;
+        width: 21rem !important;
+        min-width: 21rem !important;
+        max-width: 21rem !important;
+        transition: none !important;
+        animation: none !important;
     }
     
     /* Sidebar text color - white/cream for visibility */
