@@ -72,7 +72,7 @@ NovaPay_Fraud_Detection/
 
 ---
 
-## 🧪 Data Preproocessing 
+## 🧪 Data Preprocessing 
 
 ### 1️⃣ Data Cleaning
 - Removed duplicate transaction records  
